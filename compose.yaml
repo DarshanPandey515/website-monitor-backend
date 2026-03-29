@@ -1,0 +1,56 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:7
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
+  web:
+    build: .
+    command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    ports:
+      - mode: ingress
+        target: 8000
+        published: 8000
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql://root:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+      REDIS_URL: redis://redis:6379
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DEBUG: "False"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+
+  celery-worker:
+    build: .
+    command: celery -A core worker -Q monitoring,celery -l INFO
+    depends_on:
+      - redis
+      - db
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: mysql://root:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+
+  celery-beat:
+    build: .
+    command: celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - redis
+      - db
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: mysql://root:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
