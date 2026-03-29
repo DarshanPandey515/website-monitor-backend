@@ -18,7 +18,7 @@ services:
 
   web:
     build: .
-    command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 core.asgi:application"
     ports:
       - mode: ingress
         target: 8000
@@ -54,3 +54,6 @@ services:
     environment:
       REDIS_URL: redis://redis:6379
       DATABASE_URL: mysql://root:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+
+  volumes:
+    mysql_data:
