@@ -1,5 +1,6 @@
 name: Deploy to Defang
-
+with:
+  project-name: website-monitor-backend
 on:
   push:
     branches:
