@@ -21,6 +21,7 @@ jobs:
         uses: DefangLabs/defang-github-action@v1
         with:
           project: website-monitor-backend
+          compose-files: compose.yaml
           config-env-vars: |
             MYSQL_PASSWORD
             DJANGO_SECRET_KEY
