@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: website-monitor
     permissions:
       contents: read
       id-token: write
@@ -19,7 +20,7 @@ jobs:
       - name: Deploy with Defang
         uses: DefangLabs/defang-github-action@v1
         with:
-          project-name: website-monitor-backend
+          project: website-monitor-backend
           config-env-vars: |
             MYSQL_PASSWORD
             DJANGO_SECRET_KEY

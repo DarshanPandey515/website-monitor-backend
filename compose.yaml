@@ -54,6 +54,3 @@ services:
     environment:
       REDIS_URL: redis://redis:6379
       DATABASE_URL: mysql://root:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
-
-  volumes:
-    mysql_data:
